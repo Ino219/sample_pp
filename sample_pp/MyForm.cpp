@@ -151,7 +151,7 @@ System::Void samplepp::MyForm::MyForm_DragDrop(System::Object ^ sender, System::
 			temp->picture = pictureCheck;
 			temp->picturePath = picPath;
 				
-			
+			//
 			//}Œ`î•ñ‚ðŽæ“¾
 			shapeList->Add(var);
 			shapesList->Add(temp);
