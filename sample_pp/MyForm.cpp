@@ -26,6 +26,10 @@ System::Void samplepp::MyForm::MyForm_DragDrop(System::Object ^ sender, System::
 	List<Microsoft::Office::Interop::PowerPoint::Shape^>^ shapeList = gcnew List<Microsoft::Office::Interop::PowerPoint::Shape^>;
 
 	if (extension == ".pptx") {
+
+		
+
+		
 		//パワーポイントファイルの場合、処理を開始
 		app_ = gcnew Microsoft::Office::Interop::PowerPoint::ApplicationClass();
 		Microsoft::Office::Interop::PowerPoint::Presentations^ presen = app_->Presentations;
@@ -35,6 +39,27 @@ System::Void samplepp::MyForm::MyForm_DragDrop(System::Object ^ sender, System::
 			MsoTriState::msoFalse,
 			MsoTriState::msoFalse
 		);
+
+		//スライドを画像として出力
+		int width_ = (int)presense->PageSetup->SlideWidth;
+		int height_ = (int)presense->PageSetup->SlideHeight;
+		String^ file2;
+
+		for (int i = 1; i <= presense->Slides->Count; i++) {
+			// JPEGとして保存
+			file2 = "C:\\Users\\chach\\Desktop\\ffolder" + String::Format("\slide{0:0000}.jpg", i);
+			presense->Slides[i]->Export(file2, "jpg", width_, height_);
+		}
+		//保存した画像を取得して、パワーポイントに添付
+		presense->Slides->Add(presense->Slides->Count,Microsoft::Office::Interop::PowerPoint::PpSlideLayout::ppLayoutBlank);
+		//LinkToFileとSaveWidthDocumentはどちらかをTrueにする
+		//今回はスライドを画像出力した後、消去するので、LinkToFileをTrueにすると、エラーになり、表示ができないため、後者をtrueにする
+		presense->Slides[presense->Slides->Count]->Shapes->AddPicture(file2, Microsoft::Office::Core::MsoTriState::msoFalse, Microsoft::Office::Core::MsoTriState::msoTrue, 10.0, height_/3, width_/2.3, height_/2.3);
+		//ファイルを保存
+		presense->SaveCopyAs("C:\\Users\\chach\\Desktop\\ffolder\\t.pptx", Microsoft::Office::Interop::PowerPoint::PpSaveAsFileType::ppSaveAsPresentation, Microsoft::Office::Core::MsoTriState::msoFalse);
+		//スライド画像を消去
+		System::IO::File::Delete(file2);
+
 		//図形名
 		String^ name;
 		//テキストフレーム
@@ -69,10 +94,13 @@ System::Void samplepp::MyForm::MyForm_DragDrop(System::Object ^ sender, System::
 		Bitmap^ b;
 
 		//タイトルがあれば、以下のやり方でタイトル情報を取得できる
-		//String^ titleText = presense->Slides[1]->Shapes->Title->TextFrame->TextRange->Text;
-		//String^ titlefont = presense->Slides[1]->Shapes->Title->TextFrame->TextRange->Font->Name;
-		//String^ titlefont2 = presense->Slides[1]->Shapes->Title->AlternativeText;
-		//int title_size = presense->Slides[1]->Shapes->Title->TextFrame->TextRange->Font->Size;
+		if (presense->Slides[1]->Shapes->HasTitle == MsoTriState::msoTrue) {
+			String^ titleText = presense->Slides[1]->Shapes->Title->TextFrame->TextRange->Text;
+			String^ titlefont = presense->Slides[1]->Shapes->Title->TextFrame->TextRange->Font->Name;
+			String^ titlefont2 = presense->Slides[1]->Shapes->Title->AlternativeText;
+			int title_size = presense->Slides[1]->Shapes->Title->TextFrame->TextRange->Font->Size;
+		}
+		
 
 		
 
@@ -106,6 +134,7 @@ System::Void samplepp::MyForm::MyForm_DragDrop(System::Object ^ sender, System::
 			y = var->Top;
 
 			
+
 			//テキストタイプの処理
 			if (var->HasTextFrame==MsoTriState::msoTrue) {
 				textCheck = true;
@@ -129,7 +158,7 @@ System::Void samplepp::MyForm::MyForm_DragDrop(System::Object ^ sender, System::
 			//埋め込みデータの場合
 			if (type==MsoShapeType::msoEmbeddedOLEObject) {
 				pictureCheck = true;
-				var->Export("C:\\Users\\chach\\Desktop\\sample_umekomi.bmp", PpShapeFormat::ppShapeFormatBMP, width, height, PpExportMode::ppScaleXY);
+				var->Export("C:\\Users\\chach\\Desktop\\sample_umekomi.bmp", PpShapeFormat::ppShapeFormatBMP, width, height, PpExportMode::ppScaleToFit);
 				picPath = "C:\\Users\\chach\\Desktop\\sample_umekomi.bmp";
 			}
 			//画像ファイルの場合
@@ -226,8 +255,8 @@ System::Void samplepp::MyForm::picture_DragDrop(System::Object ^ sender, System:
 	if (e->Data->GetDataPresent(DataFormats::Bitmap)) {
 		System::Drawing::Graphics^ tegr = pictureBox1->CreateGraphics();
 		Image^ img = (Image^)e->Data->GetData(DataFormats::Bitmap);
-		int xp = pictureBox1->MousePosition.X * img->Width / pictureBox1->Width;
-		int yp = pictureBox1->MousePosition.Y * img->Height / pictureBox1->Height;
+		int xp = pictureBox1->MousePosition.X;
+		int yp = pictureBox1->MousePosition.Y;
 		tegr->DrawImage((Image^)e->Data->GetData(DataFormats::Bitmap), xp, yp);
 		//pictureBox1->Image = (Image^)e->Data->GetData(DataFormats::Bitmap);
 
