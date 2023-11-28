@@ -47,7 +47,7 @@ System::Void samplepp::MyForm::MyForm_DragDrop(System::Object ^ sender, System::
 
 		for (int i = 1; i <= presense->Slides->Count; i++) {
 			// JPEGとして保存
-			file2 = "C:\\Users\\chach\\Desktop\\ffolder" + String::Format("\slide{0:0000}.jpg", i);
+			file2 = "C:\\Users\\chach\\Desktop\\ffolder\\" + String::Format("\slide{0:0000}.jpg", i);
 			presense->Slides[i]->Export(file2, "jpg", width_, height_);
 		}
 		//保存した画像を取得して、パワーポイントに添付
@@ -58,7 +58,7 @@ System::Void samplepp::MyForm::MyForm_DragDrop(System::Object ^ sender, System::
 		//ファイルを保存
 		presense->SaveCopyAs("C:\\Users\\chach\\Desktop\\ffolder\\t.pptx", Microsoft::Office::Interop::PowerPoint::PpSaveAsFileType::ppSaveAsPresentation, Microsoft::Office::Core::MsoTriState::msoFalse);
 		//スライド画像を消去
-		System::IO::File::Delete(file2);
+		//System::IO::File::Delete(file2);
 
 		//図形名
 		String^ name;
