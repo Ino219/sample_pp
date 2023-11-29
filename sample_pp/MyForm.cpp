@@ -3,6 +3,8 @@
 using namespace samplepp;
 using namespace Microsoft::Office::Core;
 using namespace Microsoft::Office::Interop::PowerPoint;
+using namespace Microsoft::Office::Interop::Outlook;
+
 using namespace System::Collections::Generic;
 
 
@@ -15,6 +17,41 @@ int main() {
 
 System::Void samplepp::MyForm::MyForm_DragDrop(System::Object ^ sender, System::Windows::Forms::DragEventArgs ^ e)
 {
+	//outlookのインスタンス作成
+	Microsoft::Office::Interop::Outlook::Application^ ol = gcnew Microsoft::Office::Interop::Outlook::ApplicationClass();
+	MailItem^ mailItem = (MailItem^)ol->CreateItem(OlItemType::olMailItem);
+	if (mailItem != nullptr)
+	{
+		// To
+		Recipient^ to = mailItem->Recipients->Add("XXX@XXX.co.jp");
+		to->Type = (int)Microsoft::Office::Interop::Outlook::OlMailRecipientType::olTo;
+
+		// Cc
+		Recipient^ cc = mailItem->Recipients->Add("YYY@YYY.co.jp");
+		cc->Type = (int)Microsoft::Office::Interop::Outlook::OlMailRecipientType::olCC;
+
+		// アドレス帳の表示名で表示できる
+		mailItem->Recipients->ResolveAll();
+
+		// 件名
+		mailItem->Subject = "件名";
+
+		//添付ファイル
+		mailItem->Attachments->Add("C:\\Users\\chach\\Desktop\\test.pptx",OlAttachmentType::olByValue,1, "C:\\Users\\chach\\Desktop\\test.pptx");
+
+		// 本文
+		mailItem->Body = "本文";
+
+		// 表示(Displayメソッド引数のtrue/falseでモーダル/モードレスウィンドウを指定して表示できる)
+		//mailItem->Display(true);
+
+		mailItem->SaveAs("C:\\Users\\chach\\Desktop\\test.msg",OlSaveAsType::olMSG);
+	}
+	else {
+		MessageBox::Show("t");
+			
+	}
+
 	//フォームへのドラッグドロップイベント
 	array<String^>^ file = (array<String^>^)e->Data->GetData(DataFormats::FileDrop, false);
 	//拡張子の取得
@@ -47,8 +84,8 @@ System::Void samplepp::MyForm::MyForm_DragDrop(System::Object ^ sender, System::
 
 		for (int i = 1; i <= presense->Slides->Count; i++) {
 			// JPEGとして保存
-			file2 = "C:\\Users\\chach\\Desktop\\ffolder\\" + String::Format("\slide{0:0000}.jpg", i);
-			presense->Slides[i]->Export(file2, "jpg", width_, height_);
+			file2 = "C:\\Users\\chach\\Desktop\\ffolder\\" + String::Format("\slide{0:0000}.png", i);
+			presense->Slides[i]->Export(file2, "png", width_, height_);
 		}
 		//保存した画像を取得して、パワーポイントに添付
 		presense->Slides->Add(presense->Slides->Count,Microsoft::Office::Interop::PowerPoint::PpSlideLayout::ppLayoutBlank);
