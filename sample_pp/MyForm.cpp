@@ -64,8 +64,10 @@ System::Void samplepp::MyForm::MyForm_DragDrop(System::Object ^ sender, System::
 
 	if (extension == ".pptx") {
 
-		
-
+		String^ files=System::IO::Path::GetFileName(file[0]);
+		if (files == "基板ファイル名_レイアウト設計報告書.pptx") {
+			MessageBox::Show("OK");
+		}
 		
 		//パワーポイントファイルの場合、処理を開始
 		app_ = gcnew Microsoft::Office::Interop::PowerPoint::ApplicationClass();
