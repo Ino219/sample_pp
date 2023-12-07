@@ -94,6 +94,47 @@ System::Void samplepp::MyForm::MyForm_DragDrop(System::Object ^ sender, System::
 		//LinkToFileとSaveWidthDocumentはどちらかをTrueにする
 		//今回はスライドを画像出力した後、消去するので、LinkToFileをTrueにすると、エラーになり、表示ができないため、後者をtrueにする
 		presense->Slides[presense->Slides->Count]->Shapes->AddPicture(file2, Microsoft::Office::Core::MsoTriState::msoFalse, Microsoft::Office::Core::MsoTriState::msoTrue, 10.0, height_/3, width_/2.3, height_/2.3);
+		
+		//固定値の列数
+		int c = 3;
+		//各列に代入する配列
+		cli::array<String^>^ testone = gcnew cli::array<String^>(4){"a", "b", "c", "d" };
+		cli::array<String^>^ testtwo = gcnew cli::array<String^>(4) { "f", "g", "h", "i" };
+		cli::array<String^>^ testthree = gcnew cli::array<String^>(4) { "k", "l", "m", "n" };
+		//行数を定義
+		int r = testone->Length+1;
+		//テーブルを追加
+		Microsoft::Office::Interop::PowerPoint::Shape^ tab = presense->Slides[presense->Slides->Count]->Shapes->AddTable(r,c, width_ / 2, height_ / 3, width_ / 3, height_ / 3);
+		for (int i = 0; i < r*c; i++) {
+			//ヘッダー	
+			switch (i) {
+				case 0:
+					tab->Table->Columns[1]->Cells[1]->Shape->TextFrame->TextRange->Text = "aa";
+					break;
+				case 1:
+					tab->Table->Columns[2]->Cells[1]->Shape->TextFrame->TextRange->Text = "bb";
+					break;
+				case 2:
+					tab->Table->Columns[3]->Cells[1]->Shape->TextFrame->TextRange->Text = "cc";
+					break;
+			}
+			//ヘッダー以降の代入
+			if (i > 2) {
+				//1列目のセルであれば、testone配列の値を取得
+				if ((i + 1) % 3 == 1) {
+					tab->Table->Columns[(i + 1) % 3]->Cells[i/c+1]->Shape->TextFrame->TextRange->Text = testone[i/c-1];
+				}
+				//2列目のセルであれば、testtwo配列の値を取得
+				else if ((i + 1) % 3 == 2) {
+					tab->Table->Columns[(i + 1) % 3]->Cells[i / c + 1]->Shape->TextFrame->TextRange->Text = testtwo[i/c-1];
+				}
+				//3列目のセルであれば、testthree配列の値を取得
+				else if ((i + 1) % 3 == 0) {
+					tab->Table->Columns[c]->Cells[i / c + 1]->Shape->TextFrame->TextRange->Text = testthree[i/c-1];
+				}
+			}
+		}
+		
 		//ファイルを保存
 		presense->SaveCopyAs("C:\\Users\\chach\\Desktop\\ffolder\\t.pptx", Microsoft::Office::Interop::PowerPoint::PpSaveAsFileType::ppSaveAsPresentation, Microsoft::Office::Core::MsoTriState::msoFalse);
 		//スライド画像を消去
